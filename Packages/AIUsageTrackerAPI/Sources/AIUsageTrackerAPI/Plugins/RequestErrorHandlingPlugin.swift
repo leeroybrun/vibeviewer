@@ -30,11 +30,11 @@ struct RequestErrorWrapper {
 
     var defaultErrorMessage: String? {
         if self.nsError?.code == NSURLErrorTimedOut {
-            "加载数据失败，请稍后重试"
+            "Failed to load data. Please try again later."
         } else if self.nsError?.code == NSURLErrorNotConnectedToInternet {
-            "无网络连接，请检查网络"
+            "No internet connection. Check your network settings."
         } else {
-            "加载数据失败，请稍后重试"
+            "Failed to load data. Please try again later."
         }
     }
 }
@@ -56,7 +56,7 @@ class RequestErrorHandlingPlugin {
             case shouldNotHandledByPlugin
         }
 
-        case connectionError // 现在包括超时和断网错误
+        case connectionError // Includes timeouts and offline errors.
         case all
         case allWithFilter(filter: (RequestErrorWrapper) -> FilterResult)
 

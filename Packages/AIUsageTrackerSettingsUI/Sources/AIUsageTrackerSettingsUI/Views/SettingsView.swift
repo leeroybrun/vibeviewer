@@ -382,7 +382,7 @@ public struct SettingsView: View {
                 }
                 .buttonStyle(.aiUsage(Color(hex: "F58283").opacity(0.8)))
                 
-                // 清空 AppSession 按钮
+                // Button for clearing cached app session data.
                 Button("Clear App Cache") {
                     showingClearSessionAlert = true
                 }
@@ -592,18 +592,18 @@ public struct SettingsView: View {
     }
     
     private func clearAppSession() async {
-        // 清空存储的 AppSession 数据
+        // Remove any persisted session data.
         await storage.clearAppSession()
         
-        // 重置内存中的 AppSession
+        // Reset the in-memory session state.
         session.credentials = nil
         session.snapshot = nil
         
-        // 关闭设置窗口
+        // Close the settings window.
         NSApplication.shared.keyWindow?.close()
     }
     
-    /// 过滤输入，仅允许整数（0-9）
+    /// Filter input to include digits only (0-9).
     private func filterIntegerInput(_ input: String) -> String {
         input.filter { $0.isNumber }
     }

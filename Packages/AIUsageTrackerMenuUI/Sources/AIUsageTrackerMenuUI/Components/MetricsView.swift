@@ -183,11 +183,11 @@ extension DashboardSnapshot {
     }
     
     var billingMetrics: MetricsViewDataSource {
-        // 如果有新的usageSummary数据，优先使用
+        // Prefer the latest usage summary when available.
         if let usageSummary = usageSummary {
             let description = "Expires \(expiryDateString)"
             
-            // UsageSummary 的 used/limit 已经是美分，直接转换为美元显示
+            // UsageSummary already reports values in cents, so convert directly to dollars.
             return MetricsViewDataSource(
                 icon: "dollarsign.circle.fill",
                 title: "Plan Usage",
@@ -198,7 +198,7 @@ extension DashboardSnapshot {
                 tint: Color(hex: "55E07A")
             )
         } else {
-            // 回退到旧的数据源
+            // Fall back to the legacy data source if no summary exists.
             let description = "Expires \(expiryDateString), \(averageDailyAllowance)/day remaining"
             
             return MetricsViewDataSource(
@@ -221,7 +221,7 @@ extension DashboardSnapshot {
         
         let description = "Expires \(expiryDateString)"
         
-        // UsageSummary 的 used/limit 已经是美分，直接转换为美元显示
+        // UsageSummary already reports values in cents, so convert directly to dollars.
         return MetricsViewDataSource(
             icon: "bolt.circle.fill",
             title: "On-Demand Usage",

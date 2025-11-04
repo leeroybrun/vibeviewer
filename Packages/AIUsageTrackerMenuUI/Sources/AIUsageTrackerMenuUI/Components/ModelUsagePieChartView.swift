@@ -8,11 +8,11 @@ struct ModelUsagePieChartView: View {
     
     @State private var selectedAngle: Double?
     
-    // 计算每个模型的角度范围
+    // Precompute each model's angular range.
     private let modelRanges: [(id: String, range: Range<Double>)]
     private let totalCount: Int
     
-    // Teal 配色方案：从浅到深（10-100）
+    // Purple palette from light to dark (10-100).
     private let tealColors: [Color] = [
         Color(hex: "f6f2ff"), // Purple 10
         Color(hex: "e8daff"), // Purple 20
@@ -38,7 +38,7 @@ struct ModelUsagePieChartView: View {
         self.totalCount = total
     }
     
-    // 根据选中的角度找到对应的模型
+    // Resolve the selected model based on the active angle.
     private var selectedItem: ModelUsageChartData.ModelShare? {
         guard let selectedAngle else { return nil }
         if let selected = modelRanges.firstIndex(where: { $0.range.contains(selectedAngle) }) {
@@ -47,10 +47,10 @@ struct ModelUsagePieChartView: View {
         return nil
     }
     
-    // 根据占比获取对应的 Teal 颜色（占比越大，颜色越深）
+    // Map the percentage to the palette (higher share → darker color).
     private func colorForPercentage(_ percentage: Double) -> Color {
-        // 将 0-100 的百分比映射到 0-9 的颜色索引
-        let normalizedPercentage = min(max(percentage, 0), 100) // 确保在 0-100 范围内
+        // Map the 0-100 percentage range to the palette index.
+        let normalizedPercentage = min(max(percentage, 0), 100) // Ensure the value stays within 0-100.
         let colorIndex = Int((normalizedPercentage / 100.0) * Double(tealColors.count - 1))
         return tealColors[min(colorIndex, tealColors.count - 1)]
     }
@@ -64,7 +64,7 @@ struct ModelUsagePieChartView: View {
     }
     
     private var emptyView: some View {
-        Text("暂无数据")
+        Text("No data available")
             .font(.app(.satoshiRegular, size: 12))
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)

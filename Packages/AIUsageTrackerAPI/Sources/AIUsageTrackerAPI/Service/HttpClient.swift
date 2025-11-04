@@ -20,7 +20,7 @@ enum HttpClient {
 #endif
         plugins.append(RequestErrorHandlingPlugin())
 
-        // 创建完全不验证 SSL 的配置
+        // Create a session configuration without custom SSL overrides.
         let configuration = URLSessionConfiguration.af.default
         let session = Session(
             configuration: configuration,
@@ -30,7 +30,7 @@ enum HttpClient {
         return MoyaProvider<MultiTarget>(session: session, plugins: plugins)
     }
 
-    // 用来防止mockprovider释放
+    // Retain the mock provider to keep the stubbed session alive during tests.
     private static var _mockProvider: MoyaProvider<MultiTarget>!
 
     static func mockProvider(_ reponseType: MockResponseType) -> MoyaProvider<MultiTarget> {

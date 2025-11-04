@@ -50,7 +50,7 @@ public struct MenuBarExtraTransparencyHelperView: NSViewRepresentable {
             view.layer?.isOpaque = false
 
             if let eff = view as? NSVisualEffectView, eff.identifier?.rawValue != "vv_transparent_blur" {
-                // 移除系统默认的模糊/材质背景视图，确保完全透明
+                // Remove the default system blur/material view to guarantee full transparency.
                 eff.removeFromSuperview()
                 return
             }
@@ -95,8 +95,8 @@ public struct MenuBarExtraTransparencyHelperView: NSViewRepresentable {
 }
 
 public extension View {
-    /// 为 MenuBarExtra 的窗口启用透明背景（并添加系统模糊）。
-    /// 使用方式：将其作为菜单根视图的一个背景层即可。
+    /// Enables a transparent background for a MenuBarExtra window (with optional system blur).
+    /// Usage: apply as a background modifier on the menu root view.
     func menuBarExtraTransparentBackground() -> some View {
         self.background(MenuBarExtraTransparencyHelperView())
     }

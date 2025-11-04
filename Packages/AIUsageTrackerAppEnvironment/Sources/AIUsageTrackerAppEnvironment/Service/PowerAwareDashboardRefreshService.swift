@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-/// 集成刷新服务和屏幕电源状态的协调器
+/// Coordinates the dashboard refresh service with screen power state events.
 @MainActor
 @Observable
 public final class PowerAwareDashboardRefreshService: DashboardRefreshService {
@@ -18,7 +18,7 @@ public final class PowerAwareDashboardRefreshService: DashboardRefreshService {
         self.refreshService = refreshService
         self.screenPowerService = screenPowerService
         
-        // 设置屏幕睡眠和唤醒回调
+        // Wire up screen sleep/wake callbacks.
         screenPowerService.setOnScreenSleep { [weak self] in
             Task { @MainActor in
                 self?.refreshService.pause()
@@ -33,10 +33,10 @@ public final class PowerAwareDashboardRefreshService: DashboardRefreshService {
     }
     
     public func start() async {
-        // 启动屏幕电源状态监控
+        // Begin monitoring screen power state changes.
         screenPowerService.startMonitoring()
         
-        // 启动刷新服务
+        // Start the underlying refresh service.
         await refreshService.start()
     }
     

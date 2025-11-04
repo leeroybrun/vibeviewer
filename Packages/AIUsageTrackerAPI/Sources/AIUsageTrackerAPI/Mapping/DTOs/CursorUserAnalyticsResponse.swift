@@ -1,6 +1,6 @@
 import Foundation
 
-/// Cursor API 用户分析响应 DTO
+/// Cursor API response describing per-user analytics metrics.
 struct CursorUserAnalyticsResponse: Codable, Sendable, Equatable {
     let dailyMetrics: [CursorDailyMetric]
     let period: CursorAnalyticsPeriod
@@ -14,7 +14,7 @@ struct CursorUserAnalyticsResponse: Codable, Sendable, Equatable {
     let totalMembersInTeam: Int?
 }
 
-/// Cursor API 每日指标 DTO
+/// Cursor API payload representing daily metrics.
 struct CursorDailyMetric: Codable, Sendable, Equatable {
     let date: String
     let activeUsers: Int?
@@ -38,25 +38,25 @@ struct CursorDailyMetric: Codable, Sendable, Equatable {
     let clientVersionUsage: [CursorClientVersionUsageCount]?
 }
 
-/// Cursor API 模型使用计数 DTO
+/// Cursor API payload describing per-model usage counts.
 struct CursorModelUsageCount: Codable, Sendable, Equatable {
     let name: String
     let count: Int
 }
 
-/// Cursor API 扩展使用计数 DTO
+/// Cursor API payload for extension usage counts.
 struct CursorExtensionUsageCount: Codable, Sendable, Equatable {
     let name: String?
     let count: Int
 }
 
-/// Cursor API 客户端版本使用计数 DTO
+/// Cursor API payload for client version usage counts.
 struct CursorClientVersionUsageCount: Codable, Sendable, Equatable {
     let name: String
     let count: Int
 }
 
-/// Cursor API 分析周期 DTO
+/// Cursor API payload for the analytics period window.
 struct CursorAnalyticsPeriod: Codable, Sendable, Equatable {
     let startDate: String
     let endDate: String

@@ -2,25 +2,25 @@ import Foundation
 
 @Observable
 public class DashboardSnapshot: Codable, Equatable {
-    // 用户邮箱
+    // User email address
     public let email: String
-    /// 当前月总请求数(包含计划内请求 + 计划外请求(Billing))
+    /// Total request count for the month (plan + on-demand).
     public let totalRequestsAllModels: Int
-    /// 当前月已用花费
+    /// Spend in cents for the month.
     public let spendingCents: Int
-    /// 当前月预算上限
+    /// Plan hard limit in whole dollars.
     public let hardLimitDollars: Int
-    /// 当前用量历史
+    /// Usage events cached for the dashboard.
     public let usageEvents: [UsageEvent]
-    /// 今日请求次数（由外部在获取 usageEvents 后计算并注入）
+    /// Requests counted today (derived from usage events).
     public let requestToday: Int
-    /// 昨日请求次数（由外部在获取 usageEvents 后计算并注入）
+    /// Requests counted yesterday (derived from usage events).
     public let requestYestoday: Int
-    /// 使用情况摘要
+    /// Summary object returned by Cursor's usage endpoint.
     public let usageSummary: UsageSummary?
-    /// 团队计划下个人可用的免费额度（分）。仅 Team Plan 生效
+    /// Free allowance in cents for team plans.
     public let freeUsageCents: Int
-    /// 用户分析数据
+    /// Detailed user analytics.
     public let userAnalytics: UserAnalytics?
     public let providerTotals: [ProviderUsageTotal]
     public let aggregations: [UsageAggregationMetric]
@@ -158,7 +158,7 @@ public class DashboardSnapshot: Codable, Equatable {
         }
     }
 
-    /// 计算 plan + onDemand 的总消耗金额（以分为单位）
+    /// Total plan plus on-demand spend in cents.
     public var totalUsageCents: Int {
         guard let usageSummary = usageSummary else {
             return spendingCents

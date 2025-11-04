@@ -2,7 +2,7 @@ import SwiftUI
 import AIUsageTrackerModel
 import AIUsageTrackerShareUI
 
-/// 会员类型徽章组件
+/// Badge that renders the active membership type.
 struct MembershipBadge: View {
     let membershipType: MembershipType
     let isEnterpriseUser: Bool

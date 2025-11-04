@@ -14,7 +14,7 @@ struct UsageHistorySection: View {
             Divider()
             HStack {
                 Spacer()
-                Stepper("条数: \(self.settings.usageHistory.limit)", value: self.$settings.usageHistory.limit, in: 1 ... 100)
+                Stepper("Rows: \(self.settings.usageHistory.limit)", value: self.$settings.usageHistory.limit, in: 1 ... 100)
                     .frame(minWidth: 120)
             }
             .font(.callout)
@@ -23,9 +23,9 @@ struct UsageHistorySection: View {
                 if self.isLoading {
                     ProgressView()
                 } else {
-                    Button("加载用量历史") { self.onReload() }
+                    Button("Load usage history") { self.onReload() }
                 }
-                Button("今天") { self.onToday() }
+                Button("Today") { self.onToday() }
             }
 
             if !self.events.isEmpty {
@@ -49,7 +49,7 @@ struct UsageHistorySection: View {
                 }
                 .padding(.top, 4)
             } else {
-                Text("暂无用量历史").font(.caption).foregroundStyle(.secondary)
+                Text("No usage history available").font(.caption).foregroundStyle(.secondary)
             }
         }
     }

@@ -20,7 +20,7 @@ struct AgentLineChangesChartView: View {
     }
     
     private var emptyView: some View {
-        Text("暂无数据")
+        Text("No data available")
             .font(.app(.satoshiRegular, size: 12))
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -30,7 +30,7 @@ struct AgentLineChangesChartView: View {
     private var chartView: some View {
         ZStack(alignment: .top) {
             Chart {
-                // 建议的行数线
+                // Suggested line counts.
                 ForEach(data.dataPoints, id: \.date) { item in
                     LineMark(
                         x: .value("Date", item.dateLabel),
@@ -43,7 +43,7 @@ struct AgentLineChangesChartView: View {
                     .symbolSize(40)
                 }
                 
-                // 接受的行数线
+                // Accepted line counts.
                 ForEach(data.dataPoints, id: \.date) { item in
                     LineMark(
                         x: .value("Date", item.dateLabel),

@@ -21,7 +21,7 @@ struct UsageBarChartView: View {
     }
     
     private var emptyView: some View {
-        Text("暂无数据")
+        Text("No data available")
             .font(.app(.satoshiRegular, size: 12))
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -32,7 +32,7 @@ struct UsageBarChartView: View {
         ZStack(alignment: .top) {
             Chart {
                 ForEach(data.dataPoints, id: \.date) { item in
-                    // 订阅包含的请求（蓝色，底部）
+                    // Subscription-covered requests (blue base).
                     if item.subscriptionReqs > 0 {
                         BarMark(
                             x: .value("Date", item.dateLabel),
@@ -43,7 +43,7 @@ struct UsageBarChartView: View {
                         .opacity(shouldDimBar(for: item.dateLabel) ? 0.4 : 1.0)
                     }
                     
-                    // 基于使用量的请求（橙色，堆叠在上面）
+                    // Usage-based requests (orange overlay).
                     if item.usageBasedReqs > 0 {
                         BarMark(
                             x: .value("Date", item.dateLabel),
@@ -170,7 +170,7 @@ struct UsageBarChartView: View {
                     }
                 }
                 
-                // 只在有多个数据源时显示分隔线和总计
+                // Show a separator and total only when both segments are present.
                 if item.subscriptionReqs > 0 && item.usageBasedReqs > 0 {
                     Divider()
                         .padding(.vertical, 2)
@@ -179,7 +179,7 @@ struct UsageBarChartView: View {
                         .font(.app(.satoshiBold, size: 13))
                         .foregroundStyle(.primary)
                 } else {
-                    // 只有一个数据源时，直接显示该值
+                    // Otherwise display the single-segment total directly.
                     Text("\(item.totalValue) requests")
                         .font(.app(.satoshiBold, size: 13))
                         .foregroundStyle(.primary)

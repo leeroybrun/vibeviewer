@@ -6,7 +6,7 @@ public struct UsageEvent: Codable, Sendable, Equatable {
     public let kind: String
     public let requestCostCount: Int
     public let usageCostDisplay: String
-    /// 花费（分）——用于数值计算与累加
+    /// Cost in cents used for aggregation and analytics.
     public let usageCostCents: Int
     public let isTokenBased: Bool
     public let userDisplayName: String
@@ -17,7 +17,7 @@ public struct UsageEvent: Codable, Sendable, Equatable {
         AIModelBrands.brand(for: self.modelName)
     }
     
-    /// 计算实际费用显示（美元格式）
+    /// Calculated cost display string in USD.
     public var calculatedCostDisplay: String {
         let totalCents = (tokenUsage?.totalCents ?? 0.0) + cursorTokenFee
         let dollars = totalCents / 100.0

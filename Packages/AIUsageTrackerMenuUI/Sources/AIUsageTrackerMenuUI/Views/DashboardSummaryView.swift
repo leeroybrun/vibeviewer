@@ -10,10 +10,10 @@ struct DashboardSummaryView: View {
         Group {
             if let snapshot {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("邮箱: \(snapshot.email)")
-                    Text("所有模型总请求: \(snapshot.totalRequestsAllModels)")
+                    Text("Email: \(snapshot.email)")
+                    Text("Total requests (all models): \(snapshot.totalRequestsAllModels)")
                     Text("Usage Spending ($): \(snapshot.spendingCents.dollarStringFromCents)")
-                    Text("预算上限 ($): \(snapshot.hardLimitDollars)")
+                    Text("Plan budget ($): \(snapshot.hardLimitDollars)")
                     
                     if let usageSummary = snapshot.usageSummary {
                         Text("Plan Usage: \(usageSummary.individualUsage.plan.used)/\(usageSummary.individualUsage.plan.limit)")
@@ -23,7 +23,7 @@ struct DashboardSummaryView: View {
                     }
                 }
             } else {
-                Text("未登录，请先登录 Cursor")
+                Text("Not signed in. Please log in to Cursor.")
             }
         }
     }

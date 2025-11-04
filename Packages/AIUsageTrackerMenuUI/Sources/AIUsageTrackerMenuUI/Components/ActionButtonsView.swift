@@ -15,15 +15,15 @@ struct ActionButtonsView: View {
             if self.isLoading {
                 ProgressView()
             } else {
-                Button("刷新") { self.onRefresh() }
+                Button("Refresh") { self.onRefresh() }
             }
 
             if !self.isLoggedIn {
-                Button("登录") { self.onLogin() }
+                Button("Log In") { self.onLogin() }
             } else {
-                Button("退出登录") { self.onLogout() }
+                Button("Log Out") { self.onLogout() }
             }
-            Button("设置") { self.onSettings() }
+            Button("Settings") { self.onSettings() }
         }
     }
 }

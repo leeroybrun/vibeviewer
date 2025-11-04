@@ -3,7 +3,7 @@ import Foundation
 public struct UsageOverview: Sendable, Equatable {
     public struct ModelUsage: Sendable, Equatable {
         public let modelName: String
-        /// 当前月已用 token 数
+        /// Token usage for the current month.
         public let tokensUsed: Int?
 
         public init(modelName: String, tokensUsed: Int? = nil) {

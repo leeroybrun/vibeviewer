@@ -17,8 +17,8 @@ let package = Package(
       name: "AIUsageTrackerShareUI",
       dependencies: ["AIUsageTrackerModel"],
       resources: [
-        // 将自定义字体放入 Sources/AIUsageTrackerShareUI/Fonts/ 下
-        // 例如：Satoshi-Regular.otf、Satoshi-Medium.otf、Satoshi-Bold.otf、Satoshi-Italic.otf
+        // Place custom fonts under Sources/AIUsageTrackerShareUI/Fonts/.
+        // Example filenames: Satoshi-Regular.otf, Satoshi-Medium.otf, Satoshi-Bold.otf, Satoshi-Italic.otf
         .process("Fonts"),
         .process("Images"),
         .process("Shaders")

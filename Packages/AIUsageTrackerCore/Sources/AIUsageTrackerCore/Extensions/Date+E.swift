@@ -1,12 +1,12 @@
 import Foundation
 
 public extension Date {
-    /// 毫秒时间戳（字符串）
+    /// Millisecond timestamp as a string.
     var millisecondsSince1970String: String {
         String(Int(self.timeIntervalSince1970 * 1000))
     }
 
-    /// 由毫秒时间戳字符串构造 Date
+    /// Create a date from a millisecond timestamp string.
     static func fromMillisecondsString(_ msString: String) -> Date? {
         guard let ms = Double(msString) else { return nil }
         return Date(timeIntervalSince1970: ms / 1000.0)
@@ -14,7 +14,7 @@ public extension Date {
 }
 
 public extension Calendar {
-    /// 给定日期所在天的起止 [start, end]
+    /// Start and end of the provided date within this calendar.
     func dayRange(for date: Date) -> (start: Date, end: Date) {
         let startOfDay = self.startOfDay(for: date)
         let nextDay = self.date(byAdding: .day, value: 1, to: startOfDay) ?? date
@@ -22,7 +22,7 @@ public extension Calendar {
         return (startOfDay, endOfDay)
     }
 
-    /// 昨天 00:00 到当前时刻的区间 [yesterdayStart, now]
+    /// Range from the start of yesterday to the provided moment.
     func yesterdayToNowRange(from now: Date = Date()) -> (start: Date, end: Date) {
         let startOfToday = self.startOfDay(for: now)
         let startOfYesterday = self.date(byAdding: .day, value: -1, to: startOfToday) ?? now

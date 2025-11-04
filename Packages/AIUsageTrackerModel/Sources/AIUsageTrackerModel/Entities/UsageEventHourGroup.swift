@@ -10,7 +10,7 @@ public struct UsageEventHourGroup: Identifiable, Sendable, Equatable {
     public var totalRequests: Int { events.map(\.requestCostCount).reduce(0, +) }
     public var totalCostCents: Int { events.map(\.usageCostCents).reduce(0, +) }
     
-    /// 计算实际总费用显示（美元格式）
+    /// Calculated total cost display string in USD.
     public var calculatedTotalCostDisplay: String {
         let totalCents = events.reduce(0.0) { sum, event in
             sum + (event.tokenUsage?.totalCents ?? 0.0) + event.cursorTokenFee

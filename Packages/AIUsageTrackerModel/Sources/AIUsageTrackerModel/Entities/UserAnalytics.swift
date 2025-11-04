@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Chart Type Enum
 
-/// 图表类型枚举
+/// Supported analytics chart types.
 public enum ChartType: String, CaseIterable, Sendable {
     case usage = "Usage"
     case modelUsage = "Model Usage"
@@ -12,15 +12,15 @@ public enum ChartType: String, CaseIterable, Sendable {
 
 // MARK: - User Analytics
 
-/// 用户分析数据 - 包含四种图表数据
+/// Aggregated user analytics data with four chart groupings.
 public struct UserAnalytics: Codable, Sendable, Equatable {
-    /// Usage 柱状图数据
+    /// Usage bar chart data.
     public let usageChart: UsageChartData
-    /// Model Usage 饼图数据
+    /// Model usage pie chart data.
     public let modelUsageChart: ModelUsageChartData
-    /// Tab Accept 柱状图数据
+    /// Tab accept bar chart data.
     public let tabAcceptChart: TabAcceptChartData
-    /// Agent Line Changes 折线图数据
+    /// Agent line-change line chart data.
     public let agentLineChangesChart: AgentLineChangesChartData
     
     public init(
@@ -38,26 +38,26 @@ public struct UserAnalytics: Codable, Sendable, Equatable {
 
 // MARK: - Usage Chart Data
 
-/// Usage 柱状图数据
+/// Usage bar chart data.
 public struct UsageChartData: Codable, Sendable, Equatable {
-    /// 数据点列表
+    /// Collection of data points.
     public let dataPoints: [DataPoint]
     
     public init(dataPoints: [DataPoint]) {
         self.dataPoints = dataPoints
     }
     
-    /// 单个数据点
+    /// Single usage data point.
     public struct DataPoint: Codable, Sendable, Equatable {
-        /// 原始日期（毫秒时间戳字符串）
+        /// Raw date as a millisecond timestamp string.
         public let date: String
-        /// 格式化后的日期标签（MM/dd）
+        /// Display label formatted as MM/dd.
         public let dateLabel: String
-        /// 订阅包含的请求数
+        /// Request count covered by the subscription plan.
         public let subscriptionReqs: Int
-        /// 基于使用量的请求数
+        /// Request count billed on usage.
         public let usageBasedReqs: Int
-        /// 总使用次数
+        /// Combined total for the day.
         public var totalValue: Int {
             subscriptionReqs + usageBasedReqs
         }
@@ -73,24 +73,24 @@ public struct UsageChartData: Codable, Sendable, Equatable {
 
 // MARK: - Model Usage Chart Data
 
-/// Model Usage 饼图数据（所有日期总和）
+/// Model usage pie chart data (aggregated across all days).
 public struct ModelUsageChartData: Codable, Sendable, Equatable {
-    /// 模型分布列表
+    /// Distribution across models.
     public let modelDistribution: [ModelShare]
     
     public init(modelDistribution: [ModelShare]) {
         self.modelDistribution = modelDistribution
     }
     
-    /// 模型占比
+    /// Representation of a single model share.
     public struct ModelShare: Codable, Sendable, Equatable, Identifiable {
-        /// 唯一标识符
+        /// Unique identifier.
         public let id: String
-        /// 模型名称
+        /// Model name.
         public let modelName: String
-        /// 使用次数
+        /// Usage count.
         public let count: Int
-        /// 占比百分比（0-100）
+        /// Percentage share (0-100).
         public let percentage: Double
         
         public init(id: String, modelName: String, count: Int, percentage: Double) {
@@ -104,22 +104,22 @@ public struct ModelUsageChartData: Codable, Sendable, Equatable {
 
 // MARK: - Tab Accept Chart Data
 
-/// Tab Accept 柱状图数据（每天）
+/// Tab accept bar chart data (per day).
 public struct TabAcceptChartData: Codable, Sendable, Equatable {
-    /// 数据点列表
+    /// Collection of data points.
     public let dataPoints: [DataPoint]
     
     public init(dataPoints: [DataPoint]) {
         self.dataPoints = dataPoints
     }
     
-    /// 单个数据点
+    /// Single tab-accept data point.
     public struct DataPoint: Codable, Sendable, Equatable {
-        /// 原始日期（毫秒时间戳字符串）
+        /// Raw date as a millisecond timestamp string.
         public let date: String
-        /// 格式化后的日期标签（MM/dd）
+        /// Display label formatted as MM/dd.
         public let dateLabel: String
-        /// 接受的 Tab 数量
+        /// Number of accepted tabs.
         public let acceptedCount: Int
         
         public init(date: String, dateLabel: String, acceptedCount: Int) {
@@ -132,24 +132,24 @@ public struct TabAcceptChartData: Codable, Sendable, Equatable {
 
 // MARK: - Agent Line Changes Chart Data
 
-/// Agent Line Changes 折线图数据（双Y轴）
+/// Agent line-change chart data (dual Y-axis).
 public struct AgentLineChangesChartData: Codable, Sendable, Equatable {
-    /// 数据点列表
+    /// Collection of data points.
     public let dataPoints: [DataPoint]
     
     public init(dataPoints: [DataPoint]) {
         self.dataPoints = dataPoints
     }
     
-    /// 单个数据点
+    /// Single agent line-change data point.
     public struct DataPoint: Codable, Sendable, Equatable {
-        /// 原始日期（毫秒时间戳字符串）
+        /// Raw date as a millisecond timestamp string.
         public let date: String
-        /// 格式化后的日期标签（MM/dd）
+        /// Display label formatted as MM/dd.
         public let dateLabel: String
-        /// 建议的总行数（linesAdded + linesDeleted）
+        /// Total suggested lines (linesAdded + linesDeleted).
         public let suggestedLines: Int
-        /// 接受的总行数（acceptedLinesAdded + acceptedLinesDeleted）
+        /// Total accepted lines (acceptedLinesAdded + acceptedLinesDeleted).
         public let acceptedLines: Int
         
         public init(date: String, dateLabel: String, suggestedLines: Int, acceptedLines: Int) {

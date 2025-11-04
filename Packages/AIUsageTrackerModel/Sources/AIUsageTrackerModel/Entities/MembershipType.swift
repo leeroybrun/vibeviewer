@@ -1,6 +1,6 @@
 import Foundation
 
-/// 会员类型
+/// Membership types supported by Cursor subscriptions.
 public enum MembershipType: String, Sendable, Equatable, Codable {
     case enterprise = "enterprise"
     case freeTrial = "free_trial"
@@ -9,11 +9,11 @@ public enum MembershipType: String, Sendable, Equatable, Codable {
     case ultra = "ultra"
     case free = "free"
     
-    /// 获取会员类型的显示名称
+    /// Human readable membership name.
     /// - Parameters:
-    ///   - subscriptionStatus: 订阅状态
-    ///   - isEnterprise: 是否为企业版（用于区分 Enterprise 和 Team Plan）
-    /// - Returns: 显示名称
+    ///   - subscriptionStatus: active status on the billing record.
+    ///   - isEnterprise: flag used to distinguish enterprise vs. regular team plans.
+    /// - Returns: localized display name.
     public func displayName(
         subscriptionStatus: SubscriptionStatus? = nil,
         isEnterprise: Bool = false
@@ -35,7 +35,7 @@ public enum MembershipType: String, Sendable, Equatable, Codable {
     }
 }
 
-/// 订阅状态
+/// Subscription lifecycle states reported by Cursor.
 public enum SubscriptionStatus: String, Sendable, Equatable, Codable {
     case trialing = "trialing"
     case active = "active"

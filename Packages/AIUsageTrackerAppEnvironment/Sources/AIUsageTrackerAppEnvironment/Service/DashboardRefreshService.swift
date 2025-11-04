@@ -5,7 +5,7 @@ import AIUsageTrackerModel
 import AIUsageTrackerStorage
 import AIUsageTrackerCore
 
-/// 后台刷新服务协议
+/// Background refresh service interface.
 public protocol DashboardRefreshService: Sendable {
     @MainActor var isRefreshing: Bool { get }
     @MainActor var isPaused: Bool { get }
@@ -16,7 +16,7 @@ public protocol DashboardRefreshService: Sendable {
     @MainActor func refreshNow() async
 }
 
-/// 无操作默认实现，便于提供 Environment 默认值
+/// No-op implementation used for environment defaults and previews.
 public struct NoopDashboardRefreshService: DashboardRefreshService {
     public init() {}
     public var isRefreshing: Bool { false }
@@ -68,13 +68,13 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
         self.loopTask = Task { [weak self] in
             guard let self else { return }
             while !Task.isCancelled {
-                // 如果暂停，则等待一段时间后再检查
+                // When paused, wait before checking again.
                 if self.isPaused {
-                    try? await Task.sleep(for: .seconds(30)) // 暂停时每30秒检查一次状态
+                    try? await Task.sleep(for: .seconds(30)) // Poll every 30 seconds while paused.
                     continue
                 }
                 await self.refreshNow()
-                // 固定 5 分钟刷新一次
+                // Refresh every five minutes.
                 try? await Task.sleep(for: .seconds(5 * 60))
             }
         }
@@ -91,7 +91,7 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
 
     public func resume() async {
         self.isPaused = false
-        // 立即刷新一次
+        // Kick off an immediate refresh.
         await self.refreshNow()
     }
 
@@ -106,10 +106,10 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
         guard let creds = self.session.credentials else { return }
 
         do {
-            // 计算时间范围
+            // Compute time ranges for analytics and usage.
             let (analyticsStartMs, analyticsEndMs) = self.analyticsDateRangeMs()
 
-            // 使用 async let 并发发起所有三个独立的 API 请求
+            // Issue the independent API requests concurrently via async let.
             async let usageSummary = try await self.api.fetchUsageSummary(
                 cookieHeader: creds.cookieHeader
             )
@@ -126,15 +126,15 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
             )
             async let providerTotalsTask = self.fetchExternalProviderTotals()
 
-            // 等待 usageSummary，用于判断 Team Plan
+            // Await the usage summary to determine membership context.
             let usageSummaryValue = try await usageSummary
             
-            // totalRequestsAllModels 将基于使用事件计算，而非API返回的请求数据
-            let totalAll = 0 // 暂时设为0，后续通过使用事件更新
+            // totalRequestsAllModels will be derived from usage events rather than API totals.
+            let totalAll = 0 // Placeholder; usage events provide the real total later.
 
             let current = self.session.snapshot
 
-            // Team Plan free usage（依赖 usageSummary 判定）
+            // Compute free usage for team plans when applicable.
             func computeFreeCents() async -> Int {
                 if usageSummaryValue.membershipType == .enterprise && creds.isEnterpriseUser == false {
                     return (try? await self.api.fetchTeamFreeUsageCents(
@@ -147,7 +147,7 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
             }
             let freeCents = await computeFreeCents()
 
-            // 先更新一次概览（使用旧历史事件），提升 UI 及时性
+            // Update the overview immediately using cached events so the UI stays responsive.
             let overview = DashboardSnapshot(
                 email: creds.email,
                 totalRequestsAllModels: totalAll,
@@ -164,7 +164,7 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
             self.session.snapshot = overview
             try? await self.storage.saveDashboardSnapshot(overview)
 
-            // 等待并合并历史事件和分析数据（这两个已经在并发执行）
+            // Await the concurrent history and analytics tasks and merge the results.
             let events = try await cursorEventsTask
             let analyticsValue: UserAnalytics?
             do {
@@ -219,7 +219,7 @@ public final class DefaultDashboardRefreshService: DashboardRefreshService {
                 Task { await self.logger.log("Refresh succeeded with \(events.count) events") }
             }
         } catch {
-            // 静默失败
+            // Swallow the error but log diagnostics if enabled.
             if self.settings.advanced.enableDiagnosticsLogging {
                 Task { await self.logger.log("Refresh failed: \(error.localizedDescription)") }
             }

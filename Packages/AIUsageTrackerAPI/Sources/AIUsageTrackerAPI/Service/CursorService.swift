@@ -27,7 +27,8 @@ struct DefaultCursorNetworkClient: CursorNetworkClient {
 public protocol CursorService {
     func fetchMe(cookieHeader: String) async throws -> Credentials
     func fetchUsageSummary(cookieHeader: String) async throws -> AIUsageTrackerModel.UsageSummary
-    /// 仅 Team Plan 使用：返回当前用户的 free usage（以分计）。计算方式：includedSpendCents - hardLimitOverrideDollars*100，若小于0则为0
+    /// Team-plan only: returns the current member's free usage in cents.
+    /// Calculation: `includedSpendCents - hardLimitOverrideDollars * 100`, floored at zero.
     func fetchTeamFreeUsageCents(teamId: Int, userId: Int, cookieHeader: String) async throws -> Int
     func fetchFilteredUsageEvents(
         startDateMs: String,
@@ -89,12 +90,12 @@ public struct DefaultCursorService: CursorService {
     public func fetchUsageSummary(cookieHeader: String) async throws -> AIUsageTrackerModel.UsageSummary {
         let dto: CursorUsageSummaryResponse = try await self.performRequest(CursorUsageSummaryAPI(cookieHeader: cookieHeader))
         
-        // 解析日期
+        // Parse the ISO 8601 billing cycle dates
         let dateFormatter = ISO8601DateFormatter()
         let billingCycleStart = dateFormatter.date(from: dto.billingCycleStart) ?? Date()
         let billingCycleEnd = dateFormatter.date(from: dto.billingCycleEnd) ?? Date()
         
-        // 映射计划使用情况
+        // Map plan usage totals
         let planUsage = AIUsageTrackerModel.PlanUsage(
             used: dto.individualUsage.plan.used,
             limit: dto.individualUsage.plan.limit,
@@ -106,7 +107,7 @@ public struct DefaultCursorService: CursorService {
             )
         )
         
-        // 映射按需使用情况（如果存在）
+        // Map on-demand usage when present
         let onDemandUsage: AIUsageTrackerModel.OnDemandUsage? = {
             guard let individualOnDemand = dto.individualUsage.onDemand else { return nil }
             if individualOnDemand.used > 0 || individualOnDemand.limit > 0 {
@@ -119,13 +120,13 @@ public struct DefaultCursorService: CursorService {
             return nil
         }()
         
-        // 映射个人使用情况
+        // Map individual usage structure
         let individualUsage = AIUsageTrackerModel.IndividualUsage(
             plan: planUsage,
             onDemand: onDemandUsage
         )
         
-        // 映射团队使用情况（如果存在）
+        // Map team usage structure when the payload includes it
         let teamUsage: AIUsageTrackerModel.TeamUsage? = {
             guard let teamUsageData = dto.teamUsage,
                   let teamOnDemand = teamUsageData.onDemand else { return nil }
@@ -141,7 +142,7 @@ public struct DefaultCursorService: CursorService {
             return nil
         }()
         
-        // 映射会员类型
+        // Resolve the membership type enumeration
         let membershipType = AIUsageTrackerModel.MembershipType(rawValue: dto.membershipType) ?? .free
         
         return AIUsageTrackerModel.UsageSummary(
@@ -179,7 +180,7 @@ public struct DefaultCursorService: CursorService {
                 cacheReadTokens: e.tokenUsage.cacheReadTokens
             )
             
-            // 计算请求次数：基于 token 使用情况，如果没有 token 信息则默认为 1
+            // Derive the request count from token usage, defaulting to 1 when metadata is missing
             let requestCount = Self.calculateRequestCount(from: e.tokenUsage)
             
             return AIUsageTrackerModel.UsageEvent(
@@ -235,7 +236,7 @@ public struct DefaultCursorService: CursorService {
             )
         )
         
-        // 转换为四种图表数据
+        // Convert analytics into the four chart data structures the UI consumes
         return AIUsageTrackerModel.UserAnalytics(
             usageChart: mapToUsageChart(dto.dailyMetrics),
             modelUsageChart: mapToModelUsageChart(dto.dailyMetrics),
@@ -246,13 +247,13 @@ public struct DefaultCursorService: CursorService {
     
     // MARK: - Private Chart Mapping Methods
     
-    /// 映射 Usage 柱状图数据
+    /// Build the stacked bar chart for subscription vs usage-based requests
     private func mapToUsageChart(_ metrics: [CursorDailyMetric]) -> AIUsageTrackerModel.UsageChartData {
         let dataPoints = metrics.compactMap { metric -> AIUsageTrackerModel.UsageChartData.DataPoint? in
             let subscriptionReqs = metric.subscriptionIncludedReqs ?? 0
             let usageBasedReqs = metric.usageBasedReqs ?? 0
             
-            // 如果两者都为 0，则跳过该数据点
+            // Skip days with no activity
             guard subscriptionReqs > 0 || usageBasedReqs > 0 else {
                 return nil
             }
@@ -268,9 +269,9 @@ public struct DefaultCursorService: CursorService {
         return AIUsageTrackerModel.UsageChartData(dataPoints: dataPoints)
     }
     
-    /// 映射 Model Usage 饼图数据（聚合所有日期）
+    /// Aggregate model usage across the entire range for the pie chart
     private func mapToModelUsageChart(_ metrics: [CursorDailyMetric]) -> AIUsageTrackerModel.ModelUsageChartData {
-        // 聚合所有模型使用数据
+        // Combine all model usage tallies
         var modelCounts: [String: Int] = [:]
         
         for metric in metrics {
@@ -280,7 +281,7 @@ public struct DefaultCursorService: CursorService {
             }
         }
         
-        // 计算总数和百分比
+        // Calculate totals and percentages
         let totalCount = modelCounts.values.reduce(0, +)
         
         let modelDistribution = modelCounts.map { name, count -> AIUsageTrackerModel.ModelUsageChartData.ModelShare in
@@ -291,12 +292,12 @@ public struct DefaultCursorService: CursorService {
                 count: count,
                 percentage: percentage
             )
-        }.sorted { $0.count > $1.count } // 按使用次数降序排序
+        }.sorted { $0.count > $1.count } // Sort by count descending
         
         return AIUsageTrackerModel.ModelUsageChartData(modelDistribution: modelDistribution)
     }
     
-    /// 映射 Tab Accept 柱状图数据
+    /// Build the accepted-tab bar chart
     private func mapToTabAcceptChart(_ metrics: [CursorDailyMetric]) -> AIUsageTrackerModel.TabAcceptChartData {
         let dataPoints = metrics.compactMap { metric -> AIUsageTrackerModel.TabAcceptChartData.DataPoint? in
             guard let acceptedCount = metric.totalTabsAccepted, acceptedCount > 0 else {
@@ -312,7 +313,7 @@ public struct DefaultCursorService: CursorService {
         return AIUsageTrackerModel.TabAcceptChartData(dataPoints: dataPoints)
     }
     
-    /// 映射 Agent Line Changes 折线图数据
+    /// Build the agent line-change chart
     private func mapToAgentLineChangesChart(_ metrics: [CursorDailyMetric]) -> AIUsageTrackerModel.AgentLineChangesChartData {
         let dataPoints = metrics.compactMap { metric -> AIUsageTrackerModel.AgentLineChangesChartData.DataPoint? in
             let linesAdded = metric.linesAdded ?? 0
@@ -323,7 +324,7 @@ public struct DefaultCursorService: CursorService {
             let suggestedLines = linesAdded + linesDeleted
             let acceptedLines = acceptedLinesAdded + acceptedLinesDeleted
             
-            // 如果两个值都为 0，跳过此数据点
+            // Skip if there is no suggested or accepted work
             guard suggestedLines > 0 || acceptedLines > 0 else {
                 return nil
             }
@@ -339,7 +340,7 @@ public struct DefaultCursorService: CursorService {
         return AIUsageTrackerModel.AgentLineChangesChartData(dataPoints: dataPoints)
     }
     
-    /// 格式化日期标签为 MM/dd
+    /// Format a millisecond timestamp into an `MM/dd` label
     private func formatDateLabel(_ dateString: String) -> String {
         guard let timestamp = Double(dateString),
               timestamp > 0 else {
@@ -364,16 +365,16 @@ private extension DefaultCursorService {
     }
     
     static func calculateRequestCount(from tokenUsage: CursorTokenUsage) -> Int {
-        // 基于 token 使用情况计算请求次数
-        // 如果有 output tokens 或 input tokens，说明有实际的请求
+        // Estimate request counts from token usage metadata
+        // If input or output tokens are present we count the record as a request
         let hasOutputTokens = (tokenUsage.outputTokens ?? 0) > 0
         let hasInputTokens = (tokenUsage.inputTokens ?? 0) > 0
         
         if hasOutputTokens || hasInputTokens {
-            // 如果有 token 使用，至少算作 1 次请求
+            // When tokens are present we guarantee at least one request
             return 1
         } else {
-            // 如果没有 token 使用，可能是缓存读取或其他类型的请求
+            // Otherwise fall back to one request to cover cache hits or atypical calls
             return 1
         }
     }

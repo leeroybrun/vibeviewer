@@ -15,10 +15,10 @@ public struct UserAnalyticsChartView: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 标题和图表类型选择
+            // Title and chart picker.
             titleView
             
-            // 根据选中的类型显示不同的图表
+            // Render the chart that matches the current selection.
             chartContentView
                 .transition(.blurReplace)
         }

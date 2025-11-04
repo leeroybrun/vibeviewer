@@ -1,7 +1,5 @@
 ## AIUsageTracker
 
-English | [简体中文](README.zh-CN.md)
-
 ![Swift](https://img.shields.io/badge/Swift-5.10-orange?logo=swift)
 ![Xcode](https://img.shields.io/badge/Xcode-15.4%2B-blue?logo=xcode)
 ![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)

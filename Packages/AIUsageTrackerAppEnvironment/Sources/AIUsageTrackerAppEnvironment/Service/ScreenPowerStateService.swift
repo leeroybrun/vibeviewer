@@ -1,7 +1,7 @@
 import Foundation
 import Cocoa
 
-/// 屏幕电源状态服务协议
+/// Protocol describing a service that observes screen power state changes.
 public protocol ScreenPowerStateService: Sendable {
     @MainActor var isScreenAwake: Bool { get }
     @MainActor func startMonitoring()
@@ -10,7 +10,7 @@ public protocol ScreenPowerStateService: Sendable {
     @MainActor func setOnScreenWake(_ handler: @escaping @Sendable () -> Void)
 }
 
-/// 默认屏幕电源状态服务实现
+/// Default implementation backed by `NSWorkspace` notifications.
 @MainActor
 public final class DefaultScreenPowerStateService: ScreenPowerStateService, ObservableObject {
     public private(set) var isScreenAwake: Bool = true
@@ -66,7 +66,7 @@ public final class DefaultScreenPowerStateService: ScreenPowerStateService, Obse
     }
 }
 
-/// 无操作默认实现，便于提供 Environment 默认值
+/// No-op implementation used for environment defaults and previews.
 public struct NoopScreenPowerStateService: ScreenPowerStateService {
     public init() {}
     public var isScreenAwake: Bool { true }

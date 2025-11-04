@@ -13,7 +13,7 @@ public enum DateUtils {
         }
     }
 
-    /// 给定日期所在天的起止 [start, end]
+    /// Returns the start and end of the given date in the current calendar.
     public static func dayRange(for date: Date, calendar: Calendar = .current) -> (start: Date, end: Date) {
         let startOfDay = calendar.startOfDay(for: date)
         let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? date
@@ -21,14 +21,14 @@ public enum DateUtils {
         return (startOfDay, endOfDay)
     }
 
-    /// 昨天 00:00 到当前时刻的区间 [yesterdayStart, now]
+    /// Returns the range from yesterday's start to the provided `now` moment.
     public static func yesterdayToNowRange(from now: Date = Date(), calendar: Calendar = .current) -> (start: Date, end: Date) {
         let startOfToday = calendar.startOfDay(for: now)
         let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday) ?? now
         return (startOfYesterday, now)
     }
     
-    /// 7 天前的 00:00 到明天 00:00 的区间 [sevenDaysAgoStart, tomorrowStart]
+    /// Returns the range from seven days ago through the start of tomorrow.
     public static func sevenDaysAgoToNowRange(from now: Date = Date(), calendar: Calendar = .current) -> (start: Date, end: Date) {
         let startOfToday = calendar.startOfDay(for: now)
         let startOfSevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: startOfToday) ?? now
@@ -36,7 +36,7 @@ public enum DateUtils {
         return (startOfSevenDaysAgo, startOfTomorrow)
     }
 
-    /// 指定天数前的 00:00 到明天 00:00 的区间 [nDaysAgoStart, tomorrowStart]
+    /// Returns the range from `days` days ago through the start of tomorrow.
     public static func daysAgoToNowRange(days: Int, from now: Date = Date(), calendar: Calendar = .current) -> (start: Date, end: Date) {
         let startOfToday = calendar.startOfDay(for: now)
         let startOfNDaysAgo = calendar.date(byAdding: .day, value: -days, to: startOfToday) ?? now
@@ -44,18 +44,18 @@ public enum DateUtils {
         return (startOfNDaysAgo, startOfTomorrow)
     }
 
-    /// 将 Date 转为毫秒字符串
+    /// Converts a date to a millisecond timestamp string.
     public static func millisecondsString(from date: Date) -> String {
         String(Int(date.timeIntervalSince1970 * 1000))
     }
 
-    /// 由毫秒字符串转 Date
+    /// Parses a millisecond timestamp string into a `Date`.
     public static func date(fromMillisecondsString msString: String) -> Date? {
         guard let ms = Double(msString) else { return nil }
         return Date(timeIntervalSince1970: ms / 1000.0)
     }
 
-    /// 将 Date 按指定格式转为时间字符串（默认 HH:mm:ss）
+    /// Formats a date using the provided time pattern (HH:mm:ss by default).
     public static func timeString(from date: Date,
                                   format: TimeFormat = .hms,
                                   timeZone: TimeZone = .current,
@@ -67,7 +67,7 @@ public enum DateUtils {
         return formatter.string(from: date)
     }
 
-    /// 由毫秒级时间戳转为时间字符串
+    /// Converts a millisecond timestamp to a formatted string.
     public static func timeString(fromMilliseconds ms: Int64,
                                   format: TimeFormat = .hms,
                                   timeZone: TimeZone = .current,
@@ -76,7 +76,7 @@ public enum DateUtils {
         return timeString(from: date, format: format, timeZone: timeZone, locale: locale)
     }
 
-    /// 由秒级时间戳转为时间字符串
+    /// Converts a second-based timestamp to a formatted string.
     public static func timeString(fromSeconds s: Int64,
                                   format: TimeFormat = .hms,
                                   timeZone: TimeZone = .current,
@@ -85,7 +85,8 @@ public enum DateUtils {
         return timeString(from: date, format: format, timeZone: timeZone, locale: locale)
     }
 
-    /// 由毫秒级时间戳（字符串）转为时间字符串；非法输入返回空字符串
+    /// Converts a millisecond timestamp string to a formatted string, returning an empty
+    /// string for invalid input.
     public static func timeString(fromMillisecondsString msString: String,
                                   format: TimeFormat = .hms,
                                   timeZone: TimeZone = .current,

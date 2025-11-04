@@ -9,7 +9,7 @@ final class LoginWindowController: NSWindowController, NSWindowDelegate {
             onCookieCaptured(cookie)
         }, onClose: {}))
         let window = NSWindow(contentViewController: vc)
-        window.title = "Cursor 登录"
+        window.title = "Cursor Sign-In"
         window.setContentSize(NSSize(width: 900, height: 680))
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.isReleasedWhenClosed = false

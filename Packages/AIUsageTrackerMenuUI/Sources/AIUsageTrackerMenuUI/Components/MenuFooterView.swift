@@ -20,7 +20,7 @@ struct MenuFooterView: View {
             }
             .buttonStyle(.plain)
             
-            // 显示会员类型徽章
+            // Display the membership badge when available.
             if let membershipType = session.snapshot?.usageSummary?.membershipType {
                 MembershipBadge(
                     membershipType: membershipType,

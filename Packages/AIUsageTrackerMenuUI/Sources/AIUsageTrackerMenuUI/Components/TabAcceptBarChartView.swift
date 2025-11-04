@@ -20,7 +20,7 @@ struct TabAcceptBarChartView: View {
     }
     
     private var emptyView: some View {
-        Text("暂无数据")
+        Text("No data available")
             .font(.app(.satoshiRegular, size: 12))
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
