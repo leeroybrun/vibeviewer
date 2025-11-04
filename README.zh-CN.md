@@ -1,4 +1,4 @@
-## Vibeviewer
+## AIUsageTracker
 
 [English](README.md) | 简体中文
 
@@ -23,12 +23,17 @@
 - **登录与设置**：独立的登录与设置窗口，支持持久化凭据与应用偏好。
 - **自动刷新**：基于屏幕电源/活跃状态的智能刷新策略，节能且及时。
 - **模块化架构**：Core ← Model ← API ← Feature 单向依赖，DTO→Domain 映射仅在 API 层完成。
+- **多供应商追踪**：聚合 Cursor、OpenAI、Anthropic 与 Google Gemini 的使用量与费用，展示分供应商的总花费与请求数。
+- **成本对比洞察**：在设置中配置订阅价格与模型自定义，估算直接调用各家 API 的成本并与 Cursor 订阅价值对比。
+- **智能增量**：支持按水位增量拉取、可配置留存、实时火花线（Sparkline）展示、预测性消耗预警以及英文/西班牙文本地化与状态输出/ WebSocket 推送。
+- **高级控制**：可选本地代理采集、钥匙串自动导入 Cursor 凭据、带轮转的诊断日志、以及带 JSON Schema 的高级配置文件。
 - **分享组件**：内置字体与图形资源，便捷生成分享视图。
 
 ### 注意
 - 项目目前仅基于**团队账号**进行开发测试，对于个人会员账号以及 free 版本账号还未经测试，欢迎提交适配与优化。
 - 项目基于模块化分层原则，虽然目前支持 Cursor 作为数据源，对其他相同类型 App 来说，理论上只要实现了数据层的对应方法，即可无缝适配，欢迎 PR。
 - 应用目前没有 Logo，欢迎设计大佬贡献一个 Logo。
+- 所有服务商的 API 密钥与服务账号 JSON 均通过 macOS 钥匙串加密存储，在设置中清除后会同时从本地磁盘删除。
 
 > 品牌与数据来源仅用于演示。项目不会向 UI 层暴露具体的网络实现，遵循「服务协议 + 默认实现」的封装原则。
 
@@ -39,19 +44,19 @@
 项目采用 Workspace + 多个 Swift Packages 的分层设计（单向依赖：Core ← Model ← API ← Feature）：
 
 ```
-Vibeviewer/
-├─ Vibeviewer.xcworkspace           # 打开此工作区进行开发
-├─ Vibeviewer/                      # App 外壳（很薄，仅入口）
+AIUsageTracker/
+├─ AIUsageTracker.xcworkspace           # 打开此工作区进行开发
+├─ AIUsageTracker/                 # App 外壳（很薄，仅入口）
 ├─ Packages/
-│  ├─ VibeviewerCore/               # Core：工具/扩展/通用服务（不依赖业务层）
-│  ├─ VibeviewerModel/              # Model：纯领域实体（值类型/Sendable）
-│  ├─ VibeviewerAPI/                # API：网络/IO + DTO→Domain 映射（对外仅暴露服务协议）
-│  ├─ VibeviewerAppEnvironment/     # 环境注入与跨特性服务入口
-│  ├─ VibeviewerStorage/            # 存储（设置、凭据等）
-│  ├─ VibeviewerLoginUI/            # Feature：登录相关 UI
-│  ├─ VibeviewerMenuUI/             # Feature：菜单栏弹窗 UI（主界面）
-│  ├─ VibeviewerSettingsUI/         # Feature：设置界面 UI
-│  └─ VibeviewerShareUI/            # Feature：分享组件与资源
+│  ├─ AIUsageTrackerCore/               # Core：工具/扩展/通用服务（不依赖业务层）
+│  ├─ AIUsageTrackerModel/              # Model：纯领域实体（值类型/Sendable）
+│  ├─ AIUsageTrackerAPI/                # API：网络/IO + DTO→Domain 映射（对外仅暴露服务协议）
+│  ├─ AIUsageTrackerAppEnvironment/     # 环境注入与跨特性服务入口
+│  ├─ AIUsageTrackerStorage/            # 存储（设置、凭据等）
+│  ├─ AIUsageTrackerLoginUI/            # Feature：登录相关 UI
+│  ├─ AIUsageTrackerMenuUI/             # Feature：菜单栏弹窗 UI（主界面）
+│  ├─ AIUsageTrackerSettingsUI/         # Feature：设置界面 UI
+│  └─ AIUsageTrackerShareUI/            # Feature：分享组件与资源
 └─ Scripts/ & Makefile              # Tuist 生成、清理、打包 DMG 的脚本
 ```
 
@@ -97,8 +102,8 @@ Scripts/generate.sh
 2) 打开工作区并运行：
 
 ```bash
-open Vibeviewer.xcworkspace
-# 在 Xcode 中选择 scheme：Vibeviewer，目标：My Mac（macOS），直接 Run
+open AIUsageTracker.xcworkspace
+# 在 Xcode 中选择 scheme：AIUsageTracker，目标：My Mac（macOS），直接 Run
 ```
 
 3) 命令行构建/打包（可选）：
@@ -114,7 +119,7 @@ make release   # 清理 → 生成 → 构建 → 打包全流程
 ## 运行与调试
 
 - 初次运行会在菜单栏显示图标与关键指标，点击打开弹窗查看详细信息。
-- 登录与设置窗口通过依赖注入的窗口管理服务打开（参见 `VibeviewerApp.swift` 中的 `.environment(...)`）。
+- 登录与设置窗口通过依赖注入的窗口管理服务打开（参见 `AIUsageTrackerApp.swift` 中的 `.environment(...)`）。
 - 自动刷新服务将在应用启动与屏幕状态变化时调度执行。
 
 ---
@@ -124,15 +129,15 @@ make release   # 清理 → 生成 → 构建 → 打包全流程
 各模块包含独立的 Swift Package 测试目标。可在 Xcode 的 Test navigator 直接运行，或使用命令行分别在各包下执行：
 
 ```bash
-swift test --package-path Packages/VibeviewerCore
-swift test --package-path Packages/VibeviewerModel
-swift test --package-path Packages/VibeviewerAPI
-swift test --package-path Packages/VibeviewerAppEnvironment
-swift test --package-path Packages/VibeviewerStorage
-swift test --package-path Packages/VibeviewerLoginUI
-swift test --package-path Packages/VibeviewerMenuUI
-swift test --package-path Packages/VibeviewerSettingsUI
-swift test --package-path Packages/VibeviewerShareUI
+swift test --package-path Packages/AIUsageTrackerCore
+swift test --package-path Packages/AIUsageTrackerModel
+swift test --package-path Packages/AIUsageTrackerAPI
+swift test --package-path Packages/AIUsageTrackerAppEnvironment
+swift test --package-path Packages/AIUsageTrackerStorage
+swift test --package-path Packages/AIUsageTrackerLoginUI
+swift test --package-path Packages/AIUsageTrackerMenuUI
+swift test --package-path Packages/AIUsageTrackerSettingsUI
+swift test --package-path Packages/AIUsageTrackerShareUI
 ```
 
 > 提示：若新增/调整包结构，请先执行 `make generate` 以确保工作区最新。
@@ -186,7 +191,7 @@ swift test --package-path Packages/VibeviewerShareUI
 
 ## 致谢
 
-感谢所有为模块化 Swift 包架构、SwiftUI 生态与开发者工具做出贡献的社区成员。也感谢你对 Vibeviewer 的关注与改进！
+感谢所有为模块化 Swift 包架构、SwiftUI 生态与开发者工具做出贡献的社区成员。也感谢你对 AIUsageTracker 的关注与改进！
 
 UI 灵感来自 X 用户 @hi_caicai 的作品：[Minto: Vibe Coding Tracker](https://apps.apple.com/ca/app/minto-vibe-coding-tracker/id6749605275?mt=12)。
 

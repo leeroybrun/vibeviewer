@@ -1,0 +1,13 @@
+"settings.title" = "Configuración";
+"login.button" = "Iniciar sesión en Cursor";
+"usage.total" = "Uso total de créditos";
+"providers.title" = "Uso de proveedores externos";
+"comparison.title" = "Suscripción vs costos API";
+"comparison.subscription" = "Valor incluido";
+"comparison.payg" = "Equivalente API";
+"comparison.saved" = "Ahorro";
+"comparison.excess" = "Exceso";
+"alerts.title" = "Alertas";
+"aggregations.title" = "Desgloses de uso";
+"live.title" = "Uso en vivo";
+"live.toggle" = "Monitoreo en vivo";

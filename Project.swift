@@ -1,25 +1,25 @@
 import ProjectDescription
 
-let workspaceName = "Vibeviewer"
+let workspaceName = "AIUsageTracker"
 
 let project = Project(
     name: workspaceName,
-    organizationName: "Vibeviewer",
+    organizationName: "AIUsageTracker",
     options: .options(
         developmentRegion: "en",
         disableBundleAccessors: false,
         disableSynthesizedResourceAccessors: false
     ),
     packages: [
-        .local(path: "Packages/VibeviewerCore"),
-        .local(path: "Packages/VibeviewerModel"),
-        .local(path: "Packages/VibeviewerAPI"),
-        .local(path: "Packages/VibeviewerLoginUI"),
-        .local(path: "Packages/VibeviewerMenuUI"),
-        .local(path: "Packages/VibeviewerSettingsUI"),
-        .local(path: "Packages/VibeviewerAppEnvironment"),
-        .local(path: "Packages/VibeviewerStorage"),
-        .local(path: "Packages/VibeviewerShareUI"),
+        .local(path: "Packages/AIUsageTrackerCore"),
+        .local(path: "Packages/AIUsageTrackerModel"),
+        .local(path: "Packages/AIUsageTrackerAPI"),
+        .local(path: "Packages/AIUsageTrackerLoginUI"),
+        .local(path: "Packages/AIUsageTrackerMenuUI"),
+        .local(path: "Packages/AIUsageTrackerSettingsUI"),
+        .local(path: "Packages/AIUsageTrackerAppEnvironment"),
+        .local(path: "Packages/AIUsageTrackerStorage"),
+        .local(path: "Packages/AIUsageTrackerShareUI"),
     ],
     settings: .settings(base: [
         "SWIFT_VERSION": "5.10",
@@ -30,7 +30,7 @@ let project = Project(
             name: workspaceName,
             destinations: .macOS,
             product: .app,
-            bundleId: "com.magicgroot.vibeviewer",
+            bundleId: "com.magicgroot.aiusagetracker",
             deploymentTargets: .macOS("14.0"),
             infoPlist: .extendingDefault(with: [
                 "LSUIElement": .boolean(true),
@@ -38,21 +38,21 @@ let project = Project(
                 "LSApplicationCategoryType": .string("public.app-category.productivity"),
                 "UIAppFonts": .array([.string("Satoshi-Regular.ttf"), .string("Satoshi-Medium.ttf"), .string("Satoshi-Bold.ttf"), .string("Satoshi-Italic.ttf")]),
             ]),
-            sources: ["Vibeviewer/**"],
+            sources: ["AIUsageTracker/**"],
             resources: [
-                "Vibeviewer/Assets.xcassets",
-                "Vibeviewer/Preview Content/**",
+                "AIUsageTracker/Assets.xcassets",
+                "AIUsageTracker/Preview Content/**",
             ],
             dependencies: [
-                .package(product: "VibeviewerAPI"),
-                .package(product: "VibeviewerModel"),
-                .package(product: "VibeviewerCore"),
-                .package(product: "VibeviewerLoginUI"),
-                .package(product: "VibeviewerMenuUI"),
-                .package(product: "VibeviewerSettingsUI"),
-                .package(product: "VibeviewerAppEnvironment"),
-                .package(product: "VibeviewerStorage"),
-                .package(product: "VibeviewerShareUI"),
+                .package(product: "AIUsageTrackerAPI"),
+                .package(product: "AIUsageTrackerModel"),
+                .package(product: "AIUsageTrackerCore"),
+                .package(product: "AIUsageTrackerLoginUI"),
+                .package(product: "AIUsageTrackerMenuUI"),
+                .package(product: "AIUsageTrackerSettingsUI"),
+                .package(product: "AIUsageTrackerAppEnvironment"),
+                .package(product: "AIUsageTrackerStorage"),
+                .package(product: "AIUsageTrackerShareUI"),
             ]
         )
     ]

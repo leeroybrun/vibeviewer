@@ -1,0 +1,13 @@
+"settings.title" = "Settings";
+"login.button" = "Login to Cursor";
+"usage.total" = "Total Credits Usage";
+"providers.title" = "External Provider Usage";
+"comparison.title" = "Subscription vs API Costs";
+"comparison.subscription" = "Included value";
+"comparison.payg" = "API equivalent";
+"comparison.saved" = "Saved";
+"comparison.excess" = "Extra";
+"alerts.title" = "Alerts";
+"aggregations.title" = "Usage Breakdowns";
+"live.title" = "Live Usage";
+"live.toggle" = "Live Monitoring";

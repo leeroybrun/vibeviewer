@@ -23,7 +23,7 @@ Automatically bump version number, build DMG package, create GitHub PR and relea
 ```
 
 ## What it does
-1. **Version Bump**: Updates version in `Scripts/create_dmg.sh` and `Derived/InfoPlists/Vibeviewer-Info.plist`
+1. **Version Bump**: Updates version in `Scripts/create_dmg.sh` and `Derived/InfoPlists/AIUsageTracker-Info.plist`
 2. **Build DMG**: Runs `make dmg` to create installation package
 3. **Git Operations**: Commits changes and pushes to current branch
 4. **Create PR**: Creates GitHub PR with English description
