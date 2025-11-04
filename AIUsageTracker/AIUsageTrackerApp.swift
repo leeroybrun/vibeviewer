@@ -1,14 +1,14 @@
 import Observation
 import SwiftUI
-import VibeviewerAPI
-import VibeviewerAppEnvironment
-import VibeviewerCore
-import VibeviewerLoginUI
-import VibeviewerMenuUI
-import VibeviewerModel
-import VibeviewerSettingsUI
-import VibeviewerStorage
-import VibeviewerShareUI
+import AIUsageTrackerAPI
+import AIUsageTrackerAppEnvironment
+import AIUsageTrackerCore
+import AIUsageTrackerLoginUI
+import AIUsageTrackerMenuUI
+import AIUsageTrackerModel
+import AIUsageTrackerSettingsUI
+import AIUsageTrackerStorage
+import AIUsageTrackerShareUI
 
 @main
 struct AIUsageTrackerApp: App {
@@ -20,7 +20,7 @@ struct AIUsageTrackerApp: App {
     private let notificationCoordinator = NotificationCoordinator.shared
 
     @State private var settings: AppSettings
-    @State private var session: VibeviewerModel.AppSession
+    @State private var session: AIUsageTrackerModel.AppSession
     @State private var refresher: any DashboardRefreshService = NoopDashboardRefreshService()
 
     init() {
@@ -30,7 +30,7 @@ struct AIUsageTrackerApp: App {
         self.storageService = storage
         self.credentialResolver = DefaultProviderCredentialResolver(secureStore: secureStore)
         let initialSettings = DefaultCursorStorageService.loadSettingsSync()
-        let initialSession = VibeviewerModel.AppSession(
+        let initialSession = AIUsageTrackerModel.AppSession(
             credentials: DefaultCursorStorageService.loadCredentialsSync(),
             snapshot: DefaultCursorStorageService.loadDashboardSnapshotSync()
         )

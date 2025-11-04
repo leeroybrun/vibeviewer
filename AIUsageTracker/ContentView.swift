@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Vibeviewer
+//  AIUsageTracker
 //
 //  Created by Groot chen on 2025/8/24.
 //

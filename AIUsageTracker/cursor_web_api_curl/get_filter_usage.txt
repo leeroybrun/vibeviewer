@@ -1,4 +1,4 @@
-// request 获取用户按天filter的用量记录，
+// Request to retrieve the user's usage events filtered by day.
 
 curl 'https://cursor.com/api/dashboard/get-filtered-usage-events' \
   -H 'accept: */*' \

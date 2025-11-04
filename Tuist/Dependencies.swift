@@ -3,7 +3,7 @@ import ProjectDescription
 let dependencies = Dependencies(
     swiftPackageManager: .init(
         packages: [
-            // 本项目遵循单一来源：仅在 Project.swift 的 `packages` 声明本地包
+            // This project keeps a single source of truth: declare local packages only in Project.swift.
         ],
         baseSettings: .settings(
             base: [:],

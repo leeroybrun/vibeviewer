@@ -16,6 +16,7 @@
 - [x] Implement reusable aggregation engine that supports presets: 5-hour windows, sessions, daily/weekly/monthly, per-provider totals.
 - [x] Add percentile-based forecasting (P90) and burn-rate calculations with alert thresholds.
 - [x] Surface predictive warnings in UI and notifications when approaching configured budgets.
+- [x] Compare Cursor subscription value against estimated provider API pricing with configurable plan costs and per-model overrides.
 
 ### 3. Personalization & Localization
 - [x] Auto-detect timezone, locale, and macOS appearance to tailor date formatting, currency display, and theming.

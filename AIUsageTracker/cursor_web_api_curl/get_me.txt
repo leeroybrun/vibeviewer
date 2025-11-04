@@ -1,4 +1,4 @@
-// request 获取我账号的信息，id，邮箱等
+// Request to retrieve the signed-in account profile including id and email.
 
 curl 'https://cursor.com/api/dashboard/get-me' \
   -H 'accept: */*' \

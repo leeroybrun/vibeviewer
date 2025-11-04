@@ -1,7 +1,5 @@
 ## AIUsageTracker
 
-English | [简体中文](README.zh-CN.md)
-
 ![Swift](https://img.shields.io/badge/Swift-5.10-orange?logo=swift)
 ![Xcode](https://img.shields.io/badge/Xcode-15.4%2B-blue?logo=xcode)
 ![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)
@@ -24,6 +22,7 @@ An open-source macOS menu bar app that surfaces workspace/team usage and spend a
 - **Power-aware refresh**: Smart refresh strategy reacting to screen power/activity state.
 - **Modular architecture**: One-way dependencies Core ← Model ← API ← Feature; DTO→Domain mapping lives in API only.
 - **Multi-provider tracking**: Aggregate Cursor, OpenAI, Anthropic, and Google Gemini usage with per-provider spend and request totals.
+- **Cost comparison insights**: Estimate direct API pricing per provider against your Cursor subscription by configuring plan costs and per-model overrides in Settings.
 - **Incremental intelligence**: Live monitoring with sparklines, predictive spend warnings, localized UI strings (English/Spanish), and automation hooks (status exports, WebSocket streaming, MCP-friendly status line).
 - **Advanced controls**: Configurable proxy ingestion server, Keychain-backed credential automation, diagnostics logging with rotation, and JSON-based advanced configuration with schema validation.
 - **Sharing components**: Built-in fonts and assets to generate shareable views.
@@ -47,15 +46,15 @@ AIUsageTracker/
 ├─ AIUsageTracker.xcworkspace           # Open this workspace
 ├─ AIUsageTracker/                 # Thin app shell (entry only)
 ├─ Packages/
-│  ├─ VibeviewerCore/               # Core: utilities/extensions/shared services
-│  ├─ VibeviewerModel/              # Model: pure domain entities (value types/Sendable)
-│  ├─ VibeviewerAPI/                # API: networking/IO + DTO→Domain mapping (protocols exposed)
-│  ├─ VibeviewerAppEnvironment/     # Environment injection & cross-feature services
-│  ├─ VibeviewerStorage/            # Storage (settings, credentials, etc.)
-│  ├─ VibeviewerLoginUI/            # Feature: login UI
-│  ├─ VibeviewerMenuUI/             # Feature: menu popover UI (main)
-│  ├─ VibeviewerSettingsUI/         # Feature: settings UI
-│  └─ VibeviewerShareUI/            # Feature: sharing components & assets
+│  ├─ AIUsageTrackerCore/               # Core: utilities/extensions/shared services
+│  ├─ AIUsageTrackerModel/              # Model: pure domain entities (value types/Sendable)
+│  ├─ AIUsageTrackerAPI/                # API: networking/IO + DTO→Domain mapping (protocols exposed)
+│  ├─ AIUsageTrackerAppEnvironment/     # Environment injection & cross-feature services
+│  ├─ AIUsageTrackerStorage/            # Storage (settings, credentials, etc.)
+│  ├─ AIUsageTrackerLoginUI/            # Feature: login UI
+│  ├─ AIUsageTrackerMenuUI/             # Feature: menu popover UI (main)
+│  ├─ AIUsageTrackerSettingsUI/         # Feature: settings UI
+│  └─ AIUsageTrackerShareUI/            # Feature: sharing components & assets
 └─ Scripts/ & Makefile              # Tuist generation, clean, DMG packaging
 ```
 
@@ -128,15 +127,15 @@ make release   # Clean → Generate → Build → Package
 Each package ships its own tests. Run from Xcode or via CLI per package:
 
 ```bash
-swift test --package-path Packages/VibeviewerCore
-swift test --package-path Packages/VibeviewerModel
-swift test --package-path Packages/VibeviewerAPI
-swift test --package-path Packages/VibeviewerAppEnvironment
-swift test --package-path Packages/VibeviewerStorage
-swift test --package-path Packages/VibeviewerLoginUI
-swift test --package-path Packages/VibeviewerMenuUI
-swift test --package-path Packages/VibeviewerSettingsUI
-swift test --package-path Packages/VibeviewerShareUI
+swift test --package-path Packages/AIUsageTrackerCore
+swift test --package-path Packages/AIUsageTrackerModel
+swift test --package-path Packages/AIUsageTrackerAPI
+swift test --package-path Packages/AIUsageTrackerAppEnvironment
+swift test --package-path Packages/AIUsageTrackerStorage
+swift test --package-path Packages/AIUsageTrackerLoginUI
+swift test --package-path Packages/AIUsageTrackerMenuUI
+swift test --package-path Packages/AIUsageTrackerSettingsUI
+swift test --package-path Packages/AIUsageTrackerShareUI
 ```
 
 > Tip: after adding/removing packages, run `make generate` first.

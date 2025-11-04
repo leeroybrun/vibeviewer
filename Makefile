@@ -21,10 +21,10 @@ UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S),Darwin)
 qa:
-	@echo "🧪 Running core analytics tests"
-	@swift test --package-path Packages/VibeviewerCore
-	@echo "🧪 Running storage pipeline tests"
-	@swift test --package-path Packages/VibeviewerStorage
+        @echo "🧪 Running core analytics tests"
+        @swift test --package-path Packages/AIUsageTrackerCore
+        @echo "🧪 Running storage pipeline tests"
+        @swift test --package-path Packages/AIUsageTrackerStorage
 else
 qa:
 	@echo "⚠️  QA suite requires macOS frameworks; skipping on $(UNAME_S)"

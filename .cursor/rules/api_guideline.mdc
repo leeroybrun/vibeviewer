@@ -1,19 +1,19 @@
 ---
 alwaysApply: false
 ---
-# API Authoring Guidelines (VibeviewerAPI)
+# API Authoring Guidelines (AIUsageTrackerAPI)
 
 ## Goals
 - Unify API naming, directories, abstractions, dependency injection, and decoding patterns
-- Keep all APIs in a single module `VibeviewerAPI` to enforce isolation and modularity
+- Keep all APIs in a single module `AIUsageTrackerAPI` to enforce isolation and modularity
 - Standardize `DecodableTargetType` and the `HttpClient.decodableRequest(_:)` usage (async/await only) on top of Moya/Alamofire
 
 ## Hard rules
 - API targets must be declared with `struct` (no `enum`/case-style targets)
 - Use async/await-only decoding; callback-based styles are forbidden
 - Separate API declarations from model declarations:
-  - API Targets/Services → `VibeviewerAPI`
-  - Data models/aggregations → `VibeviewerModel`
+  - API Targets/Services → `AIUsageTrackerAPI`
+  - Data models/aggregations → `AIUsageTrackerModel`
 - Views/upper layers must use `Service` protocols via dependency injection, and must not call API targets or `HttpClient` directly
 - The API module only exposes `Service` protocols and default implementations; API targets, networking details, and common header configuration remain internal
 
@@ -22,7 +22,7 @@ alwaysApply: false
   - `Foundation`
   - `Moya`
   - `Alamofire` (used via `HttpClient`)
-  - `VibeviewerModel`
+  - `AIUsageTrackerModel`
 - Never import UI frameworks in the API module (`SwiftUI`/`AppKit`/`UIKit`)
 
 ## Naming conventions
@@ -31,10 +31,10 @@ alwaysApply: false
 - Default implementations: `DefaultYourFeatureService`
 - Models: `YourFeatureResponse`, `YourFeatureDetail`, etc.
 
-## Directory structure (VibeviewerAPI)
+## Directory structure (AIUsageTrackerAPI)
 ```text
-VibeviewerAPI/
-  Sources/VibeviewerAPI/
+AIUsageTrackerAPI/
+  Sources/AIUsageTrackerAPI/
     Mapping/
       ... DTOs & Mappers
     Plugins/
@@ -63,7 +63,7 @@ Example:
 ```swift
 import Foundation
 import Moya
-import VibeviewerModel
+import AIUsageTrackerModel
 
 struct UserProfileDetailAPI: DecodableTargetType {
     typealias ResultType = UserProfileResponse
@@ -86,7 +86,7 @@ struct UserProfileDetailAPI: DecodableTargetType {
 ```swift
 import Foundation
 import Moya
-import VibeviewerModel
+import AIUsageTrackerModel
 
 public protocol UserProfileService {
     func fetchDetail(userId: String) async throws -> UserProfileResponse
@@ -122,8 +122,8 @@ public struct DefaultUserProfileService: UserProfileService {
 ## View usage (dependency injection)
 Views must not call API targets or `HttpClient` directly. Use injected services instead:
 ```swift
-import VibeviewerAPI
-import VibeviewerModel
+import AIUsageTrackerAPI
+import AIUsageTrackerModel
 
 let service: UserProfileService = DefaultUserProfileService()
 let model = try await service.fetchDetail(userId: "1")
@@ -136,14 +136,14 @@ let model = try await service.fetchDetail(userId: "1")
   - Customizable via strategy protocols
 
 ## Testing & mock conventions
-- Within the `VibeviewerAPI` module, inject a `FakeNetworkClient` via `internal init(network:decoding:)` to replace real networking
+- Within the `AIUsageTrackerAPI` module, inject a `FakeNetworkClient` via `internal init(network:decoding:)` to replace real networking
 - Provide `sampleData` for each target; prefer minimal realistic JSON to ensure robust decoding
-- Use `@testable import VibeviewerAPI` to access internal symbols when external tests are required
+- Use `@testable import AIUsageTrackerAPI` to access internal symbols when external tests are required
 
 ## Alignment with modular architecture (architecture.mdc)
 - Do not import UI frameworks in the API module
 - Expose only `Service` protocols and default implementations; hide targets and networking details
-- Dependency direction: `VibeviewerModel` ← `VibeviewerAPI` ← `VibeviewerFeature`
+- Dependency direction: `AIUsageTrackerModel` ← `AIUsageTrackerAPI` ← `AIUsageTrackerMenuUI`
 - Strict “one file, one type/responsibility”; clear feature aggregation; one-way dependencies
 
 

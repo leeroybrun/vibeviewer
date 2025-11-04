@@ -1,4 +1,5 @@
-// request， 获取我team中的使用量情况，使用这里与我id相同的spendCents和fastPremiumRequests，还有hardLimitOverrideDollars作为我的用量数据源
+// Request to pull team-level spend data. Use records matching your user id for spendCents, fastPremiumRequests,
+// and hardLimitOverrideDollars as the authoritative usage data.
 
 curl 'https://cursor.com/api/dashboard/get-team-spend' \
   -H 'accept: */*' \
