@@ -2,17 +2,17 @@
 alwaysApply: false
 ---
 
-# Tuist 集成与模块化拆分（AIUsageTracker）
+# Tuist Integration & Modular Workspace (AIUsageTracker)
 
-本规则记录项目接入 Tuist、按 Feature 拆分为独立 SPM 包、UI 层依赖注入，以及常见问题排查与修复。
+This note documents how the AIUsageTracker workspace is generated with Tuist, how the feature packages are wired together, and the common pitfalls we have seen while maintaining the project.
 
-## 标准方案（Single Source of Truth）
-- 仅在 `Project.swift` 的 `packages` 节点声明本地包，保持“单一来源”。
-- 不使用 `Tuist/Dependencies.swift` 声明本地包，避免与 `Project.swift` 重复导致解析冲突。
-- App 目标依赖统一使用 `.package(product:)`。
-- 生成工程：`make generate`；清理：`make clear`（仅清当前项目 DerivedData 与项目级 Tuist 缓存）。
+## Single source of truth
+- Declare every local Swift Package only in `Project.swift` under the `packages` node.
+- Do **not** mirror those declarations inside `Tuist/Dependencies.swift`; duplicating the definitions causes Tuist/SwiftPM to resolve the same package twice and Xcode will render it as a plain folder instead of a package.
+- App target dependencies should reference packages via `.package(product:)` only.
+- Generate the workspace with `make generate`; clear derived data/cache for this project with `make clear`.
 
-示例（节选，自 `Project.swift`）
+Example excerpt from `Project.swift`:
 ```swift
 packages: [
     .local(path: "Packages/AIUsageTrackerCore"),
@@ -20,16 +20,19 @@ packages: [
     .local(path: "Packages/AIUsageTrackerAPI"),
     .local(path: "Packages/AIUsageTrackerLoginUI"),
     .local(path: "Packages/AIUsageTrackerMenuUI"),
-    .local(path: "Packages/AIUsageTrackerSettingsUI")
-],
+    .local(path: "Packages/AIUsageTrackerSettingsUI"),
+    .local(path: "Packages/AIUsageTrackerAppEnvironment"),
+    .local(path: "Packages/AIUsageTrackerStorage"),
+    .local(path: "Packages/AIUsageTrackerShareUI"),
+]
 ```
 
-## UI 层依赖注入（遵循 project.mdc）
-- 不使用 MVVM；视图内部用 `@State` 管理轻量状态。
-- 使用 Environment 注入跨模块依赖：
-  - 在 `AIUsageTrackerModel` 暴露 `EnvironmentValues.cursorStorage`。
-  - 在 `AIUsageTrackerMenuUI` 暴露 `EnvironmentValues.cursorService`、`loginWindowManager`、`settingsWindowManager`。
-- App 注入：
+## UI dependency injection (see also `project.mdc`)
+- The project follows a SwiftUI-first Model-View approach—no global MVVM/ViewModel layer.
+- Use `@Environment` to surface cross-module services:
+  - `AIUsageTrackerModel` provides `EnvironmentValues.cursorStorage`.
+  - `AIUsageTrackerMenuUI` exposes `cursorService`, `loginWindowManager`, and `settingsWindowManager` environment keys.
+- App bootstrap injection:
 ```swift
 MenuPopoverView()
     .environment(\.cursorService, DefaultCursorService())
@@ -37,7 +40,7 @@ MenuPopoverView()
     .environment(\.loginWindowManager, LoginWindowManager.shared)
     .environment(\.settingsWindowManager, SettingsWindowManager.shared)
 ```
-- 视图使用：
+- Usage inside views:
 ```swift
 @Environment(\.cursorService) private var service
 @Environment(\.cursorStorage) private var storage
@@ -45,111 +48,43 @@ MenuPopoverView()
 @Environment(\.settingsWindowManager) private var settingsWindow
 ```
 
-## Feature 拆包规范
-- 单一职责：
-  - `AIUsageTrackerLoginUI`：登录视图与窗口
-  - `AIUsageTrackerMenuUI`：菜单视图与业务触发
-  - `AIUsageTrackerSettingsUI`：设置视图与窗口
-- 每个包必须包含测试目录 `Tests/<TargetName>Tests/`（即便是占位），否则会出现测试路径报错。
+## Feature package checklist
+- Single responsibility per package:
+  - `AIUsageTrackerLoginUI`: login window & flows
+  - `AIUsageTrackerMenuUI`: menu popover UI and menu logic
+  - `AIUsageTrackerSettingsUI`: settings window & advanced configuration
+- Every package must include a `Tests/<TargetName>Tests/` directory (a placeholder test file is fine) so Tuist/SwiftPM can generate the test target without errors.
 
-## 常见问题与排查
-- 包在 Xcode 里显示为“文件夹 + ?”，不是 SPM 包：
-  - 原因：`Project.swift` 与 `Tuist/Dependencies.swift` 同时声明了本地包（重复来源），或 SwiftPM/Xcode 缓存脏。
-  - 处理：删除 `Tuist/Dependencies.swift` 的本地包声明（本项目直接删除该文件）；删除各包 `.swiftpm/`；`make clear` 后再 `make generate`。
+## Common issues & fixes
+- **Package shows as a plain folder with a question mark in Xcode**
+  - Cause: the package was declared both in `Project.swift` and `Tuist/Dependencies.swift`, or stale SwiftPM cache.
+  - Fix: remove local package entries from `Tuist/Dependencies.swift` (we keep the file empty for this reason), delete residual `.swiftpm/` directories in the packages, run `make clear`, then `make generate`.
 
-### 修复步骤（示例：AIUsageTrackerAppEnvironment 未作为包加载/显示为文件夹）
-1. 确认 Single Source of Truth：仅在 `Project.swift` 的 `packages` 节点保留本地包声明。
-   - 保持如下形式（节选）：
-   ```swift
-   packages: [
-       .local(path: "Packages/AIUsageTrackerCore"),
-       .local(path: "Packages/AIUsageTrackerModel"),
-       .local(path: "Packages/AIUsageTrackerAPI"),
-       .local(path: "Packages/AIUsageTrackerLoginUI"),
-       .local(path: "Packages/AIUsageTrackerMenuUI"),
-       .local(path: "Packages/AIUsageTrackerSettingsUI"),
-       .local(path: "Packages/AIUsageTrackerAppEnvironment"),
-   ]
-   ```
-2. 清空 `Tuist/Dependencies.swift` 的本地包声明，避免与 `Project.swift` 重复：
-   ```swift
-   let dependencies = Dependencies(
-     swiftPackageManager: .init(
-       packages: [ /* 留空，统一由 Project.swift 管理 */ ],
-       baseSettings: .settings(base: [:], configurations: [/* 省略 */])
-     ),
-     platforms: [.macOS]
-   )
-   ```
-   - 注：也可直接删除该文件；两者目标一致——移除重复来源。
-3. 可选清理缓存（若仍显示为文件夹或解析异常）：
-   - 删除各包下残留的 `.swiftpm/` 目录（若存在）。
-4. 重新生成工程：
-   ```bash
-   make clear && make generate
-   ```
-5. 验证：
-   - Xcode 的 Project Navigator 中，`AIUsageTrackerAppEnvironment` 以 Swift Package 方式展示（非普通文件夹）。
-   - App 目标依赖通过 `.package(product: "AIUsageTrackerAppEnvironment")` 引入。
-- “Couldn't load project at …/.swiftpm/xcode”：
-  - 原因：加载了过期的 `.swiftpm/xcode` 子工程缓存。
-  - 处理：删除对应包 `.swiftpm/` 后重新生成。
-- `no such module 'X'`：
-  - 原因：缺少包/目标依赖或未在 `packages` 声明路径。
-  - 处理：在包的 `Package.swift` 增加依赖；在 `Project.swift` 的 `packages` 增加 `.local(path:)`；再生成。
-- 捕获列表语法错误（如 `[weak _ = service]`）：
-  - Swift 不允许匿名弱引用捕获。移除该语法，使用受控任务生命周期（持有 `Task` 并适时取消）。
+- **"Couldn't load project at …/.swiftpm/xcode"**
+  - Cause: Xcode/Tuist is picking up an outdated embedded project cache.
+  - Fix: delete the affected package's `.swiftpm/` folder and regenerate.
 
-## Make 命令
-- 生成：
+- **`no such module 'X'`**
+  - Cause: missing dependency declaration or missing `.local(path:)` entry.
+  - Fix: add the package to `Project.swift` and reference the product via `.package(product:)` in the app target; regenerate the workspace.
+
+- **Capture list errors such as `[weak _ = service]`**
+  - Swift does not allow anonymous weak captures. Remove the capture, store the `Task` handle instead, and cancel it when appropriate.
+
+## Tuist make targets
+- Generate the workspace
 ```bash
 make generate
 ```
-- 清理（当前项目）：
+- Clear derived data and Tuist cache for this project
 ```bash
 make clear
 ```
 
-## 新增 Feature 包 Checklist
-1. 在 `Packages/YourFeature/` 创建 `Package.swift`、`Sources/YourFeature/`、`Tests/YourFeatureTests/`。
-2. 在 `Package.swift` 写入 `.package(path: ...)` 与 `targets.target.dependencies`。
-3. 在 `Project.swift` 的 `packages` 增加 `.local(path: ...)`，并在 App 目标依赖加 `.package(product: ...)`。
-4. `make generate` 重新生成。
+## Adding a new feature package
+1. Create `Packages/<Feature>/Package.swift`, `Sources/<Feature>/`, and `Tests/<Feature>Tests/`.
+2. Declare the package product/dependencies inside the new `Package.swift`.
+3. Add `.local(path: "Packages/<Feature>")` to `Project.swift` and reference the product from the app target.
+4. Run `make generate` again.
 
-## Feature 拆包规范
-- 单一职责：
-  - `AIUsageTrackerLoginUI`：登录视图与窗口
-  - `AIUsageTrackerMenuUI`：菜单视图与业务触发
-  - `AIUsageTrackerSettingsUI`：设置视图与窗口
-- 每个包必须包含测试目录 `Tests/<TargetName>Tests/`（即便是占位），否则会出现测试路径报错。
-
-## 常见问题与排查
-- 包在 Xcode 里显示为“文件夹 + ?”，不是 SPM 包：
-  - 原因：`Project.swift` 与 `Tuist/Dependencies.swift` 同时声明了本地包（重复来源），或 SwiftPM/Xcode 缓存脏。
-  - 处理：删除 `Tuist/Dependencies.swift` 的本地包声明（本项目直接删除该文件）；删除各包 `.swiftpm/`；`make clear` 后再 `make generate`。
-- “Couldn't load project at …/.swiftpm/xcode”：
-  - 原因：加载了过期的 `.swiftpm/xcode` 子工程缓存。
-  - 处理：删除对应包 `.swiftpm/` 后重新生成。
-- `no such module 'X'`：
-  - 原因：缺少包/目标依赖或未在 `packages` 声明路径。
-  - 处理：在包的 `Package.swift` 增加依赖；在 `Project.swift` 的 `packages` 增加 `.local(path:)`；再生成。
-- 捕获列表语法错误（如 `[weak _ = service]`）：
-  - Swift 不允许匿名弱引用捕获。移除该语法，使用受控任务生命周期（持有 `Task` 并适时取消）。
-
-## Make 命令
-- 生成：
-```bash
-make generate
-```
-- 清理（当前项目）：
-```bash
-make clear
-```
-
-## 新增 Feature 包 Checklist
-1. 在 `Packages/YourFeature/` 创建 `Package.swift`、`Sources/YourFeature/`、`Tests/YourFeatureTests/`。
-2. 在 `Package.swift` 写入 `.package(path: ...)` 与 `targets.target.dependencies`。
-3. 在 `Project.swift` 的 `packages` 增加 `.local(path: ...)`，并在 App 目标依赖加 `.package(product: ...)`。
-4. `make generate` 重新生成。
-
-> 经验：保持“单一来源”（只在 `Project.swift` 声明本地包）显著降低 Tuist/SwiftPM 解析歧义与缓存问题。
+> Tip: maintaining a single source of truth in `Project.swift` dramatically reduces Tuist/SwiftPM cache issues.
